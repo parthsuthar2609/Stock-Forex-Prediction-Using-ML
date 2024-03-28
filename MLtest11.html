@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Price Prediction</title>
+    <!-- Import Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<style>
+      body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(28, 1, 61);
+            color: #aa3939;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #d7bae9;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #selectedCompanyName,
+        #selectedSymbol {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+</style>
+<body>
+    <h1 id="selectedCompanyName"></h1>
+    <div id="chart"></div>
+
+    <script>
+        // Function to preprocess JSON data and extract required parameters
+        function preprocessData(jsonData) {
+            const timeSeries = jsonData['Time Series (Daily)'];
+            const dates = Object.keys(timeSeries).reverse(); // Reverse to get recent dates first
+            const data = dates.map(date => {
+                const entry = timeSeries[date];
+                return {
+                    open: parseFloat(entry['1. open']),
+                    high: parseFloat(entry['2. high']),
+                    low: parseFloat(entry['3. low']),
+                    close: parseFloat(entry['4. close'])
+                };
+            });
+            return data;
+        }
+
+        async function fetchData() {
+            var selectedSymbol = sessionStorage.getItem('selectedSymbol');
+            var selectedCompanyName = sessionStorage.getItem('selectedCompanyName');
+            var selectedCompanyNameDiv = document.getElementById('selectedCompanyName');
+            selectedCompanyNameDiv.textContent = 'Company Name: ' + selectedCompanyName;
+            const url = `https://alpha-vantage.p.rapidapi.com/query?symbol=${selectedSymbol}&function=TIME_SERIES_DAILY_ADJUSTED&outputsize=compact&datatype=json`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Key': '6176fd1ec9msh37d20c700830fd4p15dd10jsn37e29191f571',
+                    'X-RapidAPI-Host': 'alpha-vantage.p.rapidapi.com'
+                }
+            };
+
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+                displayData(result);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Display the data and plot the predictions
+        function displayData(apiData) {
+            const jsonData = apiData;
+            const dataForModel = preprocessData(jsonData);
+            console.log('Data for Model:', dataForModel);
+
+            // Calculate the moving averages for open and close prices
+            const windowSize = 5;
+            const movingAveragesOpen = [];
+            const movingAveragesClose = [];
+
+            for (let i = 0; i < dataForModel.length - windowSize + 1; i++) {
+                const windowData = dataForModel.slice(i, i + windowSize);
+                movingAveragesOpen.push(windowData.reduce((sum, val) => sum + val.open, 0) / windowSize);
+                movingAveragesClose.push(windowData.reduce((sum, val) => sum + val.close, 0) / windowSize);
+            }
+
+            // Predict the prices for the next 7 days using the moving averages
+            const predictedPrices = [];
+            const predictedUpperBounds = [];
+            const predictedLowerBounds = [];
+            const predictedDates = [];
+
+            const currentDate = new Date();
+            for (let i = 0; i < 15; i++) {
+                const date = new Date(currentDate);
+                date.setDate(date.getDate() + i + 1);
+                predictedDates.push(date.toDateString());
+
+                const predictedPrice = (movingAveragesOpen[movingAveragesOpen.length - 1 - i] +
+                                        movingAveragesClose[movingAveragesClose.length - 1 - i]) / 2;
+                const lastHigh = dataForModel[dataForModel.length - 1 - i].high;
+                const lastLow = dataForModel[dataForModel.length - 1 - i].low;
+                const predictedUpperBound = Math.max(predictedPrice, lastHigh);
+                const predictedLowerBound = Math.min(predictedPrice, lastLow);
+
+                predictedPrices.push(predictedPrice);
+                predictedUpperBounds.push(predictedUpperBound);
+                predictedLowerBounds.push(predictedLowerBound);
+            }
+
+            // Plot the predictions using Plotly.js
+            const tracePredicted = {
+                x: predictedDates,
+                y: predictedPrices,
+                mode: 'lines',
+                name: 'Predicted Price'
+            };
+
+            const traceUpperBound = {
+                x: predictedDates,
+                y: predictedUpperBounds,
+                mode: 'lines',
+                name: 'Predicted Upper Bound'
+            };
+
+            const traceLowerBound = {
+                x: predictedDates,
+                y: predictedLowerBounds,
+                mode: 'lines',
+                name: 'Predicted Lower Bound'
+            };
+
+            const plotData = [tracePredicted, traceUpperBound, traceLowerBound];
+            const layout = {
+                title: 'Stock Price Prediction',
+                xaxis: {
+                    title: 'Date'
+                },
+                yaxis: {
+                    title: 'Price'
+                }
+            };
+
+            Plotly.newPlot('chart', plotData, layout);
+        }
+
+        // Call the fetchData function when the page loads
+        window.onload = fetchData;
+    </script>
+</body>
+</html>

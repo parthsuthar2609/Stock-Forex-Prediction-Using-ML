@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: rgb(28, 1, 61);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-top: 8px;
+        }
+
+        .icons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .icons i {
+            font-size: 24px;
+            color: #555;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <form id="registrationForm">
+        <h2>Sign Up</h2>
+
+        <label for="fullName"><i class="fas fa-user"></i> Full Name:</label>
+        <input type="text" id="fullName" name="fullName" required>
+        <div class="error-message" id="fullNameError"></div>
+
+        <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+        <input type="email" id="email" name="email" required>
+        <div class="error-message" id="emailError"></div>
+
+        <label for="password"><i class="fas fa-lock"></i> Password:</label>
+        <input type="password" id="password" name="password" required>
+        <div class="error-message" id="passwordError"></div>
+
+        <button type="button" onclick="register()">Register</button>
+
+        <div class="icons">
+            <i class="fab fa-facebook"></i>
+            <i class="fab fa-twitter"></i>
+            <i class="fab fa-linkedin"></i>
+            <i class="fab fa-instagram"></i>
+        </div>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+
+    <script>
+        function register() {
+            // Reset previous error messages
+            document.getElementById("fullNameError").textContent = "";
+            document.getElementById("emailError").textContent = "";
+            document.getElementById("passwordError").textContent = "";
+
+            // Perform simple client-side validation
+            const fullName = document.getElementById("fullName").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            if (fullName.trim() === "") {
+                document.getElementById("fullNameError").textContent = "Full Name is required";
+                return;
+            }
+
+            if (email.trim() === "") {
+                document.getElementById("emailError").textContent = "Email is required";
+                return;
+            }
+
+            if (password.trim() === "") {
+                document.getElementById("passwordError").textContent = "Password is required";
+                return;
+            }
+
+            // Registration logic (you can replace this with AJAX or other methods)
+            // For demonstration purposes, display an alert
+            alert("Registration successful!");
+        }
+    </script>
+
+</body>
+</html>

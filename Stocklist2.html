@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Symbol List</title>
+    <style>
+        /* CSS for styling */
+        body {
+            background-color: rgb(28, 1, 61);
+            background-attachment: fixed; /* Background fixed */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Hide horizontal scrollbar */
+        }
+
+        h1 {
+            color: #6a1b9a; /* Purple */
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        .table-container {
+            width: 70%;
+            margin: 0 auto;
+            margin-top: 20px;
+            max-height: 500px; /* Set maximum height for table */
+            overflow-y: auto; /* Make table scrollable vertically */
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #6a1b9a; /* Purple */
+            padding: 10px;
+            text-align: left;
+            color: white; /* White text color */
+        }
+
+        th {
+            background-color: #b39ddb; /* Light purple */
+            color: #6a1b9a; /* Purple */
+        }
+
+        a {
+            color: whitesmoke;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stock Symbol List</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Company Name</th>
+                </tr>
+            </thead>
+            <tbody id="symbolTable">
+                <!-- JavaScript will populate this table -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- JavaScript for fetching data and handling click events -->
+    <script>
+        // Function to create table rows from JSON data
+        function createTableRows(data) {
+            var table = document.getElementById('symbolTable');
+            for (var symbol in data) {
+                if (data.hasOwnProperty(symbol)) {
+                    var row = table.insertRow();
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    cell1.innerHTML = '<a href="#" onclick="storeSymbol(\'' + symbol + '\', \'' + data[symbol] + '\')">' + symbol + '</a>';
+                    cell2.innerHTML = data[symbol];
+                }
+            }
+        }
+
+        // Function to store symbol and company name in session storage
+        function storeSymbol(symbol, companyName) {
+            sessionStorage.setItem('selectedSymbol', symbol);
+            sessionStorage.setItem('selectedCompanyName', companyName); // Store the company name
+            // Redirect to Chart4.html
+            window.location.href = 'Chart4.html';
+        }
+
+        // Fetch JSON data
+        fetch('companies.json')
+            .then(response => response.json())
+            .then(data => createTableRows(data))
+            .catch(error => console.error('Error fetching JSON:', error));
+    </script>
+</body>
+</html>
+
+

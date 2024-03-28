@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Chart</title>
+    <!-- Include Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+       body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(28, 1, 61);
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            text-align: center;
+            font-size: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 500;
+        }
+
+        h1 {
+            color: #d7bae9;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            margin: 20px auto;
+            width: 80%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+
+        #selectedCompanyName,
+        #selectedSymbol {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        button{
+            height: 30px;
+            width: 250px;
+            background-color: blueviolet;
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 10px solid white;
+            cursor: pointer;
+            margin-bottom: 30px;
+            margin-top: 10px;
+        }
+        a{
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="forexCurrencyName"></h1>
+    <div id="forexSymbol"></div>
+    <div>
+        <button><a href="forex_ML.html">Future prices</a></button>
+    </div>
+    <!-- Container for the Plotly line chart -->
+    <div id="lineChart"></div>
+
+    <!-- Create a div where the chart will be rendered -->
+    <div id="chart"></div>
+
+    <script> 
+        var selectedForexSymbol = sessionStorage.getItem('selectedForexSymbol');
+        var selectedForexName = sessionStorage.getItem('selectedForexName');
+
+        async function displayChartData() {
+            if (!selectedForexSymbol || !selectedForexName) {
+                console.error('Selected forex symbol or name not found in session storage.');
+                return;
+            }
+
+            var selectedSymbolDiv = document.getElementById('forexSymbol');
+            selectedSymbolDiv.textContent = 'Selected Symbol: ' + selectedForexSymbol;
+
+            var selectedCompanyNameDiv = document.getElementById('forexCurrencyName');
+            selectedCompanyNameDiv.textContent = 'Currency Name: ' + selectedForexName;
+
+            var lineChart = document.getElementById('lineChart');
+
+            const apiUrl = `https://alpha-vantage.p.rapidapi.com/query?from_symbol=${selectedForexSymbol}&function=FX_DAILY&to_symbol=INR&outputsize=compact&datatype=json`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Key': '6176fd1ec9msh37d20c700830fd4p15dd10jsn37e29191f571',
+                    'X-RapidAPI-Host': 'alpha-vantage.p.rapidapi.com'
+                }
+            };
+            try {
+                const response = await fetch(apiUrl, options);
+                const result = await response.json();
+                console.log(result);
+                // Check if 'Time Series (Daily)' exists in the result
+                if ('Time Series FX (Daily)' in result) {
+                    // Extracting data for the line chart
+                    const dates = Object.keys(result['Time Series FX (Daily)']).reverse();
+                    const openPrices = dates.map(date => result['Time Series FX (Daily)'][date]['1. open']);
+                    const closePrices = dates.map(date => result['Time Series FX (Daily)'][date]['4. close']);
+                    const highPrices = dates.map(date => result['Time Series FX (Daily)'][date]['2. high']);
+                    const lowPrices = dates.map(date => result['Time Series FX (Daily)'][date]['3. low']);
+
+                    // Create traces for the line chart
+                    const traceOpen = {
+                        x: dates,
+                        y: openPrices,
+                        mode: 'lines',
+                        name: 'Open',
+                    };
+
+                    const traceClose = {
+                        x: dates,
+                        y: closePrices,
+                        mode: 'lines',
+                        name: 'Close',
+                    };
+
+                    const traceHigh = {
+                        x: dates,
+                        y: highPrices,
+                        mode: 'lines',
+                        name: 'High',
+                    };
+
+                    const traceLow = {
+                        x: dates,
+                        y: lowPrices,
+                        mode: 'lines',
+                        name: 'Low',
+                    };
+
+                    // Combine traces for the line chart
+                    const lineChartData = [traceOpen, traceClose, traceHigh, traceLow];
+
+                    // Define layout for the line chart
+                    const lineChartLayout = {
+                        title: 'Forex Prices Over Time',
+                        xaxis: {
+                            title: 'Date',
+                            type: 'category',
+                        },
+                        yaxis: {
+                            title: 'Price',
+                        },
+                    };
+
+                    // Plot the line chart
+                    Plotly.newPlot(lineChart, lineChartData, lineChartLayout);
+
+                    // Start updating the chart every minute
+                    setTimeout(updateChart, 60000);
+                } else {
+                    console.error('Time Series FX (Daily) not found in API response:', result);
+                }
+            } catch (error) {
+                console.error('Error fetching chart data:', error);
+            }
+        }
+
+        // Call function to display chart data when page loads
+        displayChartData();
+
+        // Function to fetch new data and update the chart
+        async function updateChart() {
+    const url = `https://alpha-vantage.p.rapidapi.com/query?function=FX_INTRADAY&interval=1min&to_symbol=INR&from_symbol=${selectedForexSymbol}&datatype=json&outputsize=compact`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'X-RapidAPI-Key': '6176fd1ec9msh37d20c700830fd4p15dd10jsn37e29191f571',
+        'X-RapidAPI-Host': 'alpha-vantage.p.rapidapi.com'
+      }
+    };
+
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      console.log(data)
+      // Extract relevant data from JSON
+      const timestamps = Object.keys(data['Time Series FX (1min)']);
+      const opens = timestamps.map(timestamp => parseFloat(data['Time Series FX (1min)'][timestamp]['1. open']));
+      Plotly.newPlot('chart', [{
+    x: [], // Placeholder for initial data
+    y: [], // Placeholder for initial data
+    type: 'scatter',
+    mode: 'lines+markers'
+  }]);
+      // Update the chart with new data
+      Plotly.restyle('chart', { x: [timestamps], y: [opens] });
+
+      // Schedule the next update in 60 seconds (1 minute)
+      setTimeout(updateChart, 60000);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  // Initialize the chart
+
+  // Start updating the chart
+  updateChart();
+
+    </script>
+</body>
+</html>

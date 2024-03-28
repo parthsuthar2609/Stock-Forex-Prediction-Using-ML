@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forgot Password</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: rgb(28, 1, 61);   
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background-color: #ddd;
+    border-radius: 50%;
+    line-height: 80px;
+    font-size: 40px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="icon">?</div>
+  <h1>Forgot Your Password?</h1>
+  <p>Please enter your email address and we'll send you instructions on how to reset your password.</p>
+  <form>
+    <div class="form-group">
+      <input type="email" placeholder="Email address" required>
+    </div>
+    <button type="submit">Send Instructions</button>
+  </form>
+</div>
+
+</body>
+</html>
