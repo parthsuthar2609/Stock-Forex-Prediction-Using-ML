@@ -7,7 +7,6 @@ This repository contains code for predicting stock and forex prices using machin
 - Web Interface for interactive prediction.
 - RESTful API endpoint for programmatic access.
 - Machine Learning Models for prediction tasks.
-- Technical Indicators support for feature engineering.
 - Data Visualization tools for analysis.
 - Educational Purpose only.
 
@@ -15,16 +14,6 @@ This repository contains code for predicting stock and forex prices using machin
 1. **Web Interface**:
    - Access the web interface provided.
    - Input desired parameters and click "Predict".
-
-2. **API Endpoint**:
-   - Send HTTP requests to the API endpoint.
-   - Include parameters and receive JSON responses.
-
-### Contributors
-- Add your name and contact information if you contribute to this project.
-
-### License
-- Specify the license under which this code is distributed.
 
 ### Disclaimer
 - The predictions provided by this system are for educational and informational purposes only and should not be considered financial advice.
